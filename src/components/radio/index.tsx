@@ -1,8 +1,11 @@
 import type { FC } from 'react';
-import { useState, useCallback, useRef, isValidElement, cloneElement } from 'react';
+import { useState, useCallback, isValidElement, cloneElement, useContext } from 'react';
 import clsx from 'clsx';
 import { IonIosCheckmark } from '@twist-space/react-icons/ion';
 import { TiRound } from '@twist-space/react-icons/ti';
+import { usePropsValue } from '../../hooks';
+import RadioContext from '../radiogroup/context'
+import RadioGroup from '../radiogroup';
 import './index.scss';
 
 export interface RadioProps {
@@ -13,6 +16,8 @@ export interface RadioProps {
   icon: React.ReactNode;
   // 图标名称，选中后
   activeIcon: React.ReactNode;
+  // 配合Group模式使用
+  value: string | number;
 }
 
 export function useForceUpdate() {
@@ -24,24 +29,32 @@ export function useForceUpdate() {
 
 const Radio: FC<
 Partial<RadioProps> & Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'>
-> = (props) => {
+> & { Group: typeof RadioGroup } = (props) => {
   const {
     onChange,
     checked,
     defaultChecked,
     className,
-    style
+    style,
   } = props;
-  const _finalValue = false;
-  const dfChecked = defaultChecked ? defaultChecked : _finalValue;
-  const checkedStateRef = useRef(checked !== undefined ? checked : dfChecked);
-  const [, updateState] = useState();
-  const setCheckedStatement = (value: boolean) => {
-    const prevState = checkedStateRef.current;
-    checkedStateRef.current = value;
-    if (prevState !== checkedStateRef.current) {
-      updateState({} as any);
-      onChange && onChange(value);
+  let [checkedStatement, setCheckedStatement] = usePropsValue<boolean>({
+    value: checked,
+    defaultValue: defaultChecked,
+    finalValue: false,
+    onChange
+  });
+
+  const context = useContext(RadioContext);
+  if (context) {
+    // Group的value和radio的value相等说明当前的radio是被选中的状态
+    checkedStatement = context.value === props.value;
+
+    setCheckedStatement = (value: boolean) => {
+      if (value) {
+        context.check(props.value === undefined ? '' : props.value);
+      } else {
+        context.uncheck();
+      }
     }
   }
   const renderLabel = () => {
@@ -54,15 +67,14 @@ Partial<RadioProps> & Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'>
 
   const color = () => {
     return {
-      'radio-icon': !checkedStateRef,
-      'icon-checked': checkedStateRef
+      'radio-icon': !checkedStatement,
+      'icon-checked': checkedStatement
     };
   };
 
   const renderIcon = () => {
     const { icon, activeIcon } = props;
-    console.log('ref', checkedStateRef)
-    if (checkedStateRef.current) {
+    if (checkedStatement) {
       return isValidElement(activeIcon) ? (
         cloneElement(activeIcon, {
           ...activeIcon.props,
@@ -84,8 +96,8 @@ Partial<RadioProps> & Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'>
   };
 
   const handleClick = () => {
-    if (checkedStateRef.current) return;
-    setCheckedStatement(!checkedStateRef.current);
+    if (checkedStatement) return;
+    setCheckedStatement(!checkedStatement);
   }
 
   return (
@@ -101,4 +113,8 @@ Partial<RadioProps> & Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'>
     </div>
   );
 };
+
+Radio.Group = RadioGroup;
+Radio.displayName = 'Radio';
+
 export default Radio;
