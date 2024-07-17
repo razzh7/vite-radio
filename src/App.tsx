@@ -11,7 +11,7 @@ function App() {
         <Radio value={2}>2</Radio>
       </Radio.Group>
       <h3>受控模式</h3>
-      <Radio.Group value={value} onChange={(v) => setValue(v)}>
+      <Radio.Group value={value} onChange={(v) => setValue(v)} direaction='horizontal'>
         <Radio value={1}>1</Radio>
         <Radio value={2}>2</Radio>
       </Radio.Group>

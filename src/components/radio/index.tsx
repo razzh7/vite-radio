@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useState, useCallback, isValidElement, cloneElement, useContext } from 'react';
 import clsx from 'clsx';
-import { IonIosCheckmark } from '@twist-space/react-icons/ion';
+import { TaCircleCheck } from '@twist-space/react-icons/ta';
 import { TiRound } from '@twist-space/react-icons/ti';
 import { usePropsValue } from '../../hooks';
 import RadioContext from '../radiogroup/context'
@@ -22,7 +22,6 @@ export interface RadioProps {
 
 export function useForceUpdate() {
   const [, updateState] = useState();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return useCallback(() => updateState({} as any), []);
 }
 
@@ -81,7 +80,7 @@ Partial<RadioProps> & Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'>
           className: clsx(color())
         })
       ) : (
-        <IonIosCheckmark className={clsx(color())} />
+        <TaCircleCheck className={clsx(color())} />
       );
     }
 
@@ -102,13 +101,13 @@ Partial<RadioProps> & Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'>
 
   return (
     <div
-    className={className}
+    className={clsx('radio', className)}
     style={style}
     onClick={handleClick}
     >
       <>
-        {renderLabel()}
         {renderIcon()}
+        {renderLabel()}
       </>
     </div>
   );

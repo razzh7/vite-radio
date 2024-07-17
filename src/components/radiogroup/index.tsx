@@ -1,6 +1,8 @@
 import type { FC } from "react";
 import { usePropsValue } from "../../hooks";
 import RadioContext from './context';
+import clsx from "clsx";
+import './index.scss';
 
 export interface RadioGroupProps {
   // 受控模式，需要依赖父组件的外部状态，配合onChange使用
@@ -8,6 +10,7 @@ export interface RadioGroupProps {
   // 非受控模式，不需要依赖父组件的外部状态
   defaultValue: string | number;
   onChange: (value: string | number) => void;
+  direaction: 'horizontal' | 'vertical'
 }
 
 const RadioGroup: FC<
@@ -37,7 +40,15 @@ Partial<RadioGroupProps> & Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'
         },
       }}
     >
-      <div className={className} style={style}>
+      <div className={clsx(
+        'radio-group',
+        {
+          [`radio-group-${props.direaction}`]: props.direaction
+        },
+        className
+      )}
+      style={style}
+      >
         {props.children}
       </div>
     </RadioContext.Provider>
